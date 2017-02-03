@@ -3,6 +3,9 @@ package com.glt.imagephile.util;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +27,8 @@ import static android.content.ContentValues.TAG;
  */
 
 public class ImageUtil {
+
+
 
     public static File createImageFile(Context context, long reportID) {
         // Create an image file name
@@ -93,4 +98,13 @@ public class ImageUtil {
         return imageFiles;
     }
 
+    public static BitmapDrawable createDrawable(Context context, String imagePath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize= 4;
+        Bitmap bp = BitmapFactory.decodeFile(imagePath, options);
+        if (bp == null)
+            Log.e("bitmap", " is null");
+        BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bp);
+        return drawable;
+    }
 }
