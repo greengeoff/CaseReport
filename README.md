@@ -9,3 +9,4 @@ Todo
 * add content descriptions
 
 * use a custom camera activity to prevent camera from saving to public space
+* replace 'Report Manager' with a ContentProvider
