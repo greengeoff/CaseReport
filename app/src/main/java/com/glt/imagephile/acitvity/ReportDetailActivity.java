@@ -1,6 +1,7 @@
 package com.glt.imagephile.acitvity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,13 +13,16 @@ import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +30,7 @@ import android.widget.Toast;
 import com.glt.imagephile.R;
 import com.glt.imagephile.adapter.ImageAdapter;
 import com.glt.imagephile.data.AVnoteContract;
+import com.glt.imagephile.manager.ReportManager;
 import com.glt.imagephile.model.AVnote;
 import com.glt.imagephile.model.DamageReport;
 import com.glt.imagephile.util.ImageUtil;
@@ -41,6 +46,9 @@ public class ReportDetailActivity extends AppCompatActivity {
     ImageAdapter adapter;
     GridView gridview;
 
+    // provides access to db
+    ReportManager rm;
+
     // extra from DamageListActivity
     long reportId;
     DamageReport dr;
@@ -55,6 +63,13 @@ public class ReportDetailActivity extends AppCompatActivity {
     // list of image files
     private File[] files;
 
+    // set these vars whie building note data
+    private String avDescription = null;
+    private String avImagePath = null;
+
+    private AVnote newNote;
+
+
 
     //
 
@@ -65,18 +80,17 @@ public class ReportDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Report manager is currently providing db access
+        rm = ReportManager.getInstance(this);
         //
+
+        // prepare list (yagniy?)
         drawableList = new ArrayList<>();
-
-
-
+        //
 
         Intent intent = getIntent();
-        dr = new DamageReport();
-        dr.setID(intent.getLongExtra(ReportListActivity.REPORT_ID_EXTRA, 0));
-        reportId = dr.getID();
-        dr.setAddress(intent.getStringExtra(ReportListActivity.REPORT_ADDRESS_EXTRA));
-        dr.setClaimant(intent.getStringExtra(ReportListActivity.REPORT_CLAIMANT_EXTRA));
+        reportId = intent.getLongExtra(ReportListActivity.REPORT_ID_EXTRA, 0);
+        loadReportFromDB();
 
 
         // attach the reports id to the activity
@@ -112,7 +126,28 @@ public class ReportDetailActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dispatchTakePictureIntent();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ReportDetailActivity.this);
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.dialog_note_description, null);
+                builder.setView(dialogView);
+                builder.setPositiveButton("Create Note", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        EditText description = (EditText)dialogView.findViewById(R.id.editText);
+                        avDescription = description.getText().toString();
+                        dispatchTakePictureIntent();
+
+                    }
+                }).setNegativeButton(R.string.cancel_create_report,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        // user cancelled
+                                    }
+                                });
+
+
             }
         });
 
@@ -120,10 +155,6 @@ public class ReportDetailActivity extends AppCompatActivity {
         loadImagesFromFiles();
         adapter =  new ImageAdapter(this, drawableList);
         gridview.setAdapter(adapter);
-
-        addPhotos();
-
-
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -134,9 +165,10 @@ public class ReportDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    // fet photos from file system
-    private void addPhotos() {
+    private void loadReportFromDB() {
+
     }
+
 
     @Override
     protected void onResume() {
@@ -167,7 +199,9 @@ public class ReportDetailActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    ///////////////////////////////////////////////////
+    /////////////////////////////////////////////////// Think Geek
+    /////
+    /////  *** **  **s
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -175,6 +209,17 @@ public class ReportDetailActivity extends AppCompatActivity {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File imageFile = ImageUtil.createImageFile(ReportDetailActivity.this, this.reportId);
+
+            // Beware of tight coupling !! ***** encapsulation !!
+
+            avImagePath = imageFile.toString();
+
+            newNote = new AVnote(reportId, avDescription);
+
+
+            // Danger above *******************************
+
+
             Uri photoUri = FileProvider.getUriForFile(
                     ReportDetailActivity.this,
                     "com.glt.imagephile.fileprovider",
@@ -193,6 +238,7 @@ public class ReportDetailActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            newNote.setImagePath(avImagePath);
             adapter.notifyDataSetChanged();
             File imageDir = ReportDetailActivity.this.getFilesDir();
             Log.d("image/ exist", String.valueOf(imageDir.exists())

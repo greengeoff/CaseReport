@@ -21,7 +21,6 @@ import com.glt.imagephile.model.DamageReport;
 public class ReportListActivity extends AppCompatActivity {
     private static String Tag = ReportListActivity.class.getSimpleName();
 
-    public static String REPORT_EXTRA = "report_extra";
     public static String REPORT_ID_EXTRA = "report_id";
     public static String REPORT_CLAIMANT_EXTRA = "report_claimant";
     public static String REPORT_ADDRESS_EXTRA = "report_address";

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.glt.imagephile.model.AVnote;
 import com.glt.imagephile.model.DamageReport;
 
 /**
@@ -46,8 +47,22 @@ public class DBHelper extends SQLiteOpenHelper {
         damageReport.setID(newRowId);
 
         return newRowId;
+    }
 
+    public long createAVnote(AVnote avNote){
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        ContentValues values = new ContentValues();
+        values.put(AVnoteContract.AVnote.COLUMN_OWNER_ID,
+                avNote.getOwnerID());
+        values.put(AVnoteContract.AVnote.COLUMN_DETAIL,
+                avNote.getAudioPath());
+        values.put(AVnoteContract.AVnote.COLUMN_IMAGEPATH,
+                    avNote.getImagePath());
+
+        long newRowId = db.insert(AVnoteContract.AVnote.TABLE_NAME,
+                null, values);
+        return newRowId;
 
     }
 }
