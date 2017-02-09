@@ -10,3 +10,7 @@ Todo
 
 * use a custom camera activity to prevent camera from saving to public space
 * replace 'Report Manager' with a ContentProvider
+
+* handle async tasks on rotation
+ * onPause() -> task.cancel()
+ * retained Fragment
