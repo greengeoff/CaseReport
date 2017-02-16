@@ -17,3 +17,7 @@ Todo
  
 * fix gap error in RecyclerView
 * put linear layout in CardView
+
+* **Add Preferences**
+ * delete
+ * theme
