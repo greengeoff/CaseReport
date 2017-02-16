@@ -15,8 +15,9 @@ public class AVnote {
     }
 
     public AVnote(long ownerID, String details) {
-        this.details = details;
         this.ownerID = ownerID;
+        this.details = details;
+
     }
 
     public String getAudioPath() {
@@ -51,4 +52,13 @@ public class AVnote {
         this.ownerID = ownerID;
     }
 
+    @Override
+    public String toString() {
+        return "AVnote{" +
+                "ownerID=" + ownerID +
+                ", imagePath='" + imagePath + '\'' +
+                ", audioPath='" + audioPath + '\'' +
+                ", details='" + details + '\'' +
+                '}';
+    }
 }

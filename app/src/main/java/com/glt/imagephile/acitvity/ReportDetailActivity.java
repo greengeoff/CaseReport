@@ -15,6 +15,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glt.imagephile.R;
-import com.glt.imagephile.adapter.ImageAdapter;
+import com.glt.imagephile.adapter.CardAdapter;
+
 import com.glt.imagephile.data.AVnoteContract;
 import com.glt.imagephile.manager.ReportManager;
 import com.glt.imagephile.model.AVnote;
@@ -43,7 +46,9 @@ import java.util.List;
 import static com.glt.imagephile.util.ImageUtil.createImageFile;
 
 public class ReportDetailActivity extends AppCompatActivity {
-    ImageAdapter adapter;
+    public static String TAG = "ReportDetailActivity";
+
+    CardAdapter adapter;
     GridView gridview;
 
     // provides access to db
@@ -82,14 +87,13 @@ public class ReportDetailActivity extends AppCompatActivity {
 
         //Report manager is currently providing db access
         rm = ReportManager.getInstance(this);
-        //
+        rm.printStatus();
 
-        // prepare list (yagniy?)
-        drawableList = new ArrayList<>();
-        //
-
+        // use the intent's report id to load AVnotes of this report
         Intent intent = getIntent();
         reportId = intent.getLongExtra(ReportListActivity.REPORT_ID_EXTRA, 0);
+        dr = rm.getSingleReport(reportId);
+
         loadReportFromDB();
 
 
@@ -102,19 +106,13 @@ public class ReportDetailActivity extends AppCompatActivity {
         claimantTV.setText(dr.getClaimant());
         addressTV = (TextView)findViewById(R.id.reportDetailReportId);
         addressTV.setText(dr.getAddress());
-        addressTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(ReportDetailActivity.this,
-                        "touch",
-                        Toast.LENGTH_SHORT).show();
-                loadImagesFromFiles();
-            }
-        });
 
+        // Set up recycler view
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.avNoteList);
+        adapter = new CardAdapter(ReportDetailActivity.this, noteList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager( new LinearLayoutManager(this));
 
-
-        //get DamageReport from manager
 
 
         // make db query to get rows from DB
@@ -123,58 +121,20 @@ public class ReportDetailActivity extends AppCompatActivity {
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(ReportDetailActivity.this);
-                LayoutInflater inflater = getLayoutInflater();
-                final View dialogView = inflater.inflate(R.layout.dialog_note_description, null);
-                builder.setView(dialogView);
-                builder.setPositiveButton("Create Note", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText description = (EditText)dialogView.findViewById(R.id.editText);
-                        avDescription = description.getText().toString();
-                        dispatchTakePictureIntent();
-
-                    }
-                }).setNegativeButton(R.string.cancel_create_report,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        // user cancelled
-                                    }
-                                });
+        fab.setOnClickListener( fabClickListener);
 
 
-            }
-        });
-
-        gridview = (GridView) findViewById(R.id.gridView);
-        loadImagesFromFiles();
-        adapter =  new ImageAdapter(this, drawableList);
-        gridview.setAdapter(adapter);
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                Toast.makeText(ReportDetailActivity.this, "" + position,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void loadReportFromDB() {
-
+        noteList = rm.getAVnotesFromReportId(reportId);
+        Log.d(TAG, noteList.toString());
     }
 
 
     @Override
     protected void onResume() {
-        loadImagesFromFiles();
-        adapter.notifyDataSetChanged();
-        gridview.invalidate();
         super.onResume();
     }
 
@@ -215,6 +175,7 @@ public class ReportDetailActivity extends AppCompatActivity {
             avImagePath = imageFile.toString();
 
             newNote = new AVnote(reportId, avDescription);
+            System.out.println(" pre photo " + newNote);
 
 
             // Danger above *******************************
@@ -243,13 +204,22 @@ public class ReportDetailActivity extends AppCompatActivity {
             File imageDir = ReportDetailActivity.this.getFilesDir();
             Log.d("image/ exist", String.valueOf(imageDir.exists())
                     + String.valueOf(imageDir.listFiles().length));
-            loadImagesFromFiles();
+
+            //add newnote
+            //newNote.setOwnerID(reportId);
+            System.out.println("post photo" +newNote);
+            rm.addAVnotetoDB(newNote);
+
+            adapter.notifyDataSetChanged();
+
+
+
         }
 
     };
 
-    private void loadImagesFromFiles(){
-        drawableList.clear();
+    private void c(){
+
         files = ImageUtil.getFilesList(ReportDetailActivity.this, reportId);
         if(files == null){
             Log.d("got a null list", "");
@@ -273,5 +243,36 @@ public class ReportDetailActivity extends AppCompatActivity {
 
 
     }
+
+    private View.OnClickListener fabClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            Toast.makeText(ReportDetailActivity.this, "yo man",Toast.LENGTH_LONG).show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(ReportDetailActivity.this);
+            LayoutInflater inflater = getLayoutInflater();
+            final View dialogView = inflater.inflate(R.layout.dialog_note_description, null);
+            builder.setView(dialogView);
+            builder.setPositiveButton("Create Note", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    EditText description = (EditText)dialogView.findViewById(R.id.editText);
+                    avDescription = description.getText().toString();
+                    dispatchTakePictureIntent();
+
+                }
+            }).setNegativeButton(R.string.cancel_create_report,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // user cancelled
+                        }
+                    });
+            builder.create().show();
+
+
+        }
+    };
 
 }

@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.hardware.camera2.CameraManager;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.glt.imagephile.data.AVnoteContract;
 import com.glt.imagephile.data.DBHelper;
@@ -16,6 +17,8 @@ import com.glt.imagephile.model.DamageReport;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by gltrager on 1/14/17.
@@ -102,20 +105,24 @@ public class ReportManager {
 
     }
 
-    private static List<AVnote> getAVnotesFromReportId(long reportId){
+    public static List<AVnote> getAVnotesFromReportId(long reportId){
         List<AVnote> noteList = new ArrayList<>();
 
         DBHelper dbHelper = new DBHelper(context);
         Cursor cursor = dbHelper.getReadableDatabase()
-                .rawQuery("select * from " + AVnoteContract.AVnote.TABLE_NAME
-                           + " where " + AVnoteContract.AVnote.COLUMN_OWNER_ID
-                            + "=" + reportId, null);
+                .rawQuery( "select * from " + AVnoteContract.AVnote.TABLE_NAME +
+                           " where " + AVnoteContract.AVnote.COLUMN_OWNER_ID +
+                           "=" + String.valueOf(reportId),
+                           null);
         if(cursor.moveToFirst()){
             noteList.add(makeAVnote(cursor));
+
             
             while(cursor.moveToNext()){
                 noteList.add(makeAVnote(cursor));
             }
+        }else{
+            System.out.println("cursor won't move to first");
         }
         cursor.close();
         dbHelper.close();
@@ -130,8 +137,53 @@ public class ReportManager {
                 AVnoteContract.AVnote.COLUMN_DETAIL)));
         note.setImagePath(cursor.getString(cursor.getColumnIndex(
                 AVnoteContract.AVnote.COLUMN_IMAGEPATH)));
+        note.setOwnerID(cursor.getLong(cursor.getColumnIndex(
+                AVnoteContract.AVnote.COLUMN_OWNER_ID)));
+        System.out.println("note " + note);
         return note;
 
     }
 
+    public DamageReport getSingleReport(long reportId) {
+        DamageReport theOne = null;
+        for (DamageReport report : reportList){
+            System.out.println(report);
+            if (report.getID() == reportId) {
+                theOne = report;
+                break;
+            }
+        }
+        System.out.println("the single report:\n"+theOne);
+        return theOne;
+    }
+
+    public static long addAVnotetoDB(AVnote newNote) {
+
+        Log.d("add", "addAVnote");
+        DBHelper dbHelper = new DBHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+
+        cv.put(AVnoteContract.AVnote.COLUMN_DETAIL,
+                newNote.getDetails());
+
+        cv.put(AVnoteContract.AVnote.COLUMN_IMAGEPATH,
+                newNote.getImagePath());
+
+        cv.put(AVnoteContract.AVnote.COLUMN_OWNER_ID,
+                newNote.getOwnerID());
+
+
+        long id = db.insert(AVnoteContract.AVnote.TABLE_NAME,
+                null, cv);
+
+        dbHelper.close();
+        return id;
+    }
+
+    public static void printStatus(){
+
+        System.out.println(reportList);
+    }
 }
