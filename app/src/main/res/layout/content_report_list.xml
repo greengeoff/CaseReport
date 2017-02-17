@@ -17,6 +17,8 @@
     <ListView
         android:id="@+id/reportListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
+        android:layout_height="wrap_content"
+        android:divider="#333"
+        android:dividerHeight="2dp"></ListView>
 
 </LinearLayout>

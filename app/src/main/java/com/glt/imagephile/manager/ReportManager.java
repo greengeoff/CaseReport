@@ -50,6 +50,10 @@ public class ReportManager {
         reportList.add(report);
 
     }
+
+    public static void upDateReportList(){
+        loadReportsFromDB();
+    }
     public List<DamageReport> getReportList(){
         return reportList;
     }
@@ -185,5 +189,16 @@ public class ReportManager {
     public static void printStatus(){
 
         System.out.println(reportList);
+    }
+
+    public static void deleteAllRecords(){
+        DBHelper dbHelper = new DBHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        db.delete(AVnoteContract.AVnote.TABLE_NAME,null,null);
+        db.delete(DamageReportContract.DamageReport.TABLE_NAME,null,null);
+        System.out.println("deleted all");
+
+
     }
 }

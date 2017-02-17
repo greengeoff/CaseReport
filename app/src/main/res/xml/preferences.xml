@@ -1,0 +1,32 @@
+
+<PreferenceScreen
+xmlns:android="http://schemas.android.com/apk/res/android">
+
+<PreferenceCategory
+    android:title="Category 1">
+Compat
+
+        android:title="Use Dark Night Theme"
+        android:summary="This can look better under low light conditions"
+        android:defaultValue="true" />
+
+    <EditTextPreference
+
+        android:title="FeedBack"
+        android:summary="Tell us how we're Ding"
+        android:dialogMessage="Dialog Message"
+        android:defaultValue="Default value" />
+    <ListPreference
+        android:key="pref_themes"
+        android:title="Color Theme"
+        android:entryValues="@array/pref_themes"
+        android:entries="@array/pref_themes"
+        />
+    <Preference
+        android:key="pref_delete_all"
+        android:title="Clean Up"
+        android:summary="This wil delete all Case Reports"
+        />
+</PreferenceCategory>
+
+</PreferenceScreen>

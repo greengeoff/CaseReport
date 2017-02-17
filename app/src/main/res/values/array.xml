@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_themes">
+        <item>Dark Night</item>
+        <item>Clear Day</item>
+        <item>Wacky Colors</item>
+    </string-array>
+</resources>
