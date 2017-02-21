@@ -34,6 +34,8 @@ public class ReportListActivity extends AppCompatActivity {
     EditText name;
     EditText address;
 
+    ListView reportList;
+
 
 
     @Override
@@ -49,6 +51,10 @@ public class ReportListActivity extends AppCompatActivity {
 
         //load the report manager with some fake data
         //MockerData.addMockDataToManager();
+
+        reportList = (ListView)findViewById(R.id.reportListView);
+
+
 
 
 
@@ -139,6 +145,10 @@ public class ReportListActivity extends AppCompatActivity {
         }
     };
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
+        reportList.invalidate();
+    }
 }

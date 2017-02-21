@@ -49,6 +49,8 @@ public class SettingsFragment extends PreferenceFragment
         }
     }
 
+
+
     @Override
     public void onResume() {
         super.onResume();

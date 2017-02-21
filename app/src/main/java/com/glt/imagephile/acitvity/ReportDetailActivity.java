@@ -137,6 +137,8 @@ public class ReportDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        loadReportFromDB();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -213,6 +215,8 @@ public class ReportDetailActivity extends AppCompatActivity {
             rm.addAVnotetoDB(newNote);
 
             adapter.notifyDataSetChanged();
+
+
 
 
 

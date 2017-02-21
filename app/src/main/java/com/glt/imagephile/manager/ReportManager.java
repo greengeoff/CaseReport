@@ -197,7 +197,10 @@ public class ReportManager {
 
         db.delete(AVnoteContract.AVnote.TABLE_NAME,null,null);
         db.delete(DamageReportContract.DamageReport.TABLE_NAME,null,null);
-        System.out.println("deleted all");
+
+        reportList.clear();
+        upDateReportList();
+        if(reportList.size() == 0)  System.out.println("deleted all");
 
 
     }
