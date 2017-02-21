@@ -75,6 +75,8 @@ public class ReportDetailActivity extends AppCompatActivity {
 
     private AVnote newNote;
 
+    private RecyclerView recyclerView;
+
 
 
     //
@@ -109,7 +111,7 @@ public class ReportDetailActivity extends AppCompatActivity {
         addressTV.setText(dr.getAddress());
 
         // Set up recycler view
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.avNoteList);
+        recyclerView = (RecyclerView) findViewById(R.id.avNoteList);
         adapter = new CardAdapter(ReportDetailActivity.this, noteList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager( new LinearLayoutManager(this));
@@ -139,6 +141,7 @@ public class ReportDetailActivity extends AppCompatActivity {
         super.onResume();
         loadReportFromDB();
         adapter.notifyDataSetChanged();
+        recyclerView.invalidate();
     }
 
     @Override

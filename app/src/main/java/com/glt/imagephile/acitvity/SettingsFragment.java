@@ -1,5 +1,6 @@
 package com.glt.imagephile.acitvity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -34,6 +35,8 @@ public class SettingsFragment extends PreferenceFragment
             public boolean onPreferenceClick(Preference preference) {
                 ReportManager.deleteAllRecords();
                 ReportManager.upDateReportList();
+                Intent i = new Intent(getActivity(), ReportListActivity.class);
+                startActivity(i);
                 return true;
             }
         });
