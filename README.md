@@ -15,9 +15,12 @@ Todo
  * onPause() -> task.cancel()
  * retained Fragment
  
-* fix gap error in RecyclerView
-* put linear layout in CardView
+* ~~fix gap error in RecyclerView~~
+* ~~put linear layout in CardView~~
 
-* **Add Preferences**
+* ~~~**Add Preferences**
  * delete
- * theme
+ * theme~~
+ 
+* delete AVnote on LongClick
+
